@@ -1,0 +1,10 @@
+class Answer
+instance variables
+  private text : seq of (char);
+  private id : int;
+  private idQuestion : int;
+  private date : seq of (char);
+  private comments : seq of Comment;
+  private closed : bool := false;
+
+end Answer

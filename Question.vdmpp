@@ -1,0 +1,19 @@
+class Question
+		types
+				public String = seq of char;
+		instance variables
+			  private text : seq of (char);
+			  private Date : seq of (char);
+			  private Category : seq of (char);
+			  private static id : int := 0;
+			  private answers : seq of (Answer) := [];
+		operations
+				public Question : String ==> Question
+				Question(question) == (
+						text := question;
+						return self;
+				)
+				pre len question > 0;
+
+
+end Question
