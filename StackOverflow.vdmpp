@@ -11,6 +11,7 @@ class StackOverflow
 		public questions : map nat to Question := {|->};
 		public answers : map nat to Answer := {|->}; 
 		public comments : map nat to Comment := {|->};
+		public votes : set of Vote := {};
 		public loggedUser : [User] := nil;
 	operations
 		
@@ -250,26 +251,94 @@ class StackOverflow
 			card dom comments = card dom comments~ 
 		);
 		
-		-- User Votes on Question
-		-- User Votes on Answer		
+		-- User upvotes Question
+		public upvoteQuestion : nat ==> ()
+		upvoteQuestion(questionID) == (
+			votes := votes union {new Upvote(0,getLoggedID(),questionID)};
+		)
+		pre (
+			loggedUser <> nil
+			and not questions(questionID).userID = (inverse (users :> {loggedUser}))(loggedUser)
+			and exists1 question in set dom questions & question = questionID
+			and not questions(questionID).deleted
+			and not exists1 vote in set votes & (
+				isofclass(Vote, vote)
+				and vote.userID = (inverse (users :> {loggedUser}))(loggedUser)
+				and vote.questionID = questionID
+			)
+		)
+		post(
+			card votes = card votes~ + 1
+		);
+		
+		-- User downvotes Question
+		public downvoteQuestion : nat ==> ()
+		downvoteQuestion(questionID) == (
+			votes := votes union {new Downvote(0,getLoggedID(),questionID)};
+		)
+		pre (
+			loggedUser <> nil
+			and not questions(questionID).userID = (inverse (users :> {loggedUser}))(loggedUser)
+			and exists1 question in set dom questions & question = questionID
+			and not questions(questionID).deleted
+			and not exists1 vote in set votes & (
+				isofclass(Vote, vote)
+				and vote.userID = (inverse (users :> {loggedUser}))(loggedUser)
+				and vote.questionID = questionID
+			)
+		)
+		post(
+			card votes = card votes~ + 1
+		);
+	
+		-- User upvotes answer
+		public upvoteAnswer : nat ==> ()
+		upvoteAnswer(answerID) == (
+			votes := votes union {new Upvote(0,getLoggedID(),answerID)};
+		)
+		pre (
+			loggedUser <> nil
+			and not answers(answerID).userID = (inverse (users :> {loggedUser}))(loggedUser)
+			and exists1 answer in set dom answers & answer = answerID
+			and not answers(answerID).deleted
+			and not exists1 vote in set votes & (
+				isofclass(Vote, vote)
+				and vote.userID = (inverse (users :> {loggedUser}))(loggedUser)
+				and vote.questionID = answerID
+			)
+		)
+		post(
+			card votes = card votes~ + 1
+		);
+		
+		-- User downvotes answer
+		public downvoteAnswer : nat ==> ()
+		downvoteAnswer(answerID) == (
+			votes := votes union {new Downvote(0,getLoggedID(),answerID)};
+		)
+		pre (
+			loggedUser <> nil
+			and not answers(answerID).userID = (inverse (users :> {loggedUser}))(loggedUser)
+			and exists1 answer in set dom answers & answer = answerID
+			and not answers(answerID).deleted
+			and not exists1 vote in set votes & (
+				isofclass(Vote, vote)
+				and vote.userID = (inverse (users :> {loggedUser}))(loggedUser)
+				and vote.questionID = answerID
+			)
+		)
+		post(
+			card votes = card votes~ + 1
+		);
+		
 		
 		-- Print Users
 		public printUsers : () ==> ()
 		printUsers () == (
 			for all user in set rng users do (
-				IO`print("User - ");
-				IO`print(user.username);
-				IO`print(", ");
-				IO`print(user.password);
-				IO`print("\n");
-				IO`print("Questions: \n ");
+				Printer`Out("User - " ^ user.username ^ ", " ^ user.password ^ "\n" ^ "Questions: \n ");
 				for all qID in set user.questions do (
-					IO`print(questions(qID).category);
-					IO`print("\n");
-					IO`print(questions(qID).text);
-					IO`print("\n");
-					IO`print(questions(qID).description);
-					IO`print("\n");
+					Printer`Out("\tQ"^Printer`natToString(qID) ^ ":\n\tCategory: " ^ questions(qID).category ^ "\n\tQuestion: " ^ questions(qID).text ^ "\n\tDesc: " ^ questions(qID).description ^"\n");
 				) 
 			)
 		)

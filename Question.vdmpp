@@ -19,7 +19,7 @@ class Question
 			  -- The question's ID
 			  private static id : nat := 0;
 			  -- The ID of the user who posted this question
-			  private userID : nat := 0;
+			  public userID : nat := 0;
 			  -- This question's answers (IDs)
 			  public answers : set of nat := {};
 			  
