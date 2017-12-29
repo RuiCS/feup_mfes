@@ -11,11 +11,13 @@ class Comment
 	  -- The answer's ID
 	  private static id : nat := 0;
 	  -- The ID of the user who posted this comment
-	  private userID : nat := 0;
+	  public userID : nat := 0;
 	  -- The ID of the question this comment belongs to
 	  private questionID : nat := 0;
 	  -- The ID of the answer this comment belongs to
-	  private answerID : nat := 0;
+	  public answerID : nat := 0;
+	  -- Whether this comment has been deleted or not
+	  public deleted : bool := false;
 			
 	operations
 		-- Create Comment
@@ -29,6 +31,18 @@ class Comment
 		)
 		pre len comment > 0;		
 		
+		-- Delete comment
+		public delete : () ==> ()
+		delete() == (
+			deleted := true;
+		);
+		
+		-- Edit comment
+		public edit : String ==> ()
+		edit (content) == (
+			text := content;
+		) pre len content > 0;
+				
 	functions
 	traces
 end Comment

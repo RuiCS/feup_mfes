@@ -4,13 +4,13 @@ class Question
 				
 		instance variables
 				-- The Question itself
-			  private text : String;
+			  public text : String;
 			  -- The Body of the question
-			  private description : String := "";
+			  public description : String := "";
 			  -- The date at which the question was posted
-			  private date : String := "";
+			  public date : String := "";
 			  -- The category the question belongs to
-			  private category : String := "";
+			  public category : String := "";
 			  -- Whether this question is closed or not
 			  public closed : bool := false;
 			  -- Whether this question has been deleted or not
@@ -80,6 +80,7 @@ class Question
 				answer (answerID) == (
 					answers := answers union {answerID};
 				);
+				
 				-- Accept Answer ?
 				
 end Question

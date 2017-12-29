@@ -7,16 +7,18 @@ class Answer
 	  -- The date at which the answer was posted
 	  private date : String := "";
 	  -- Whether this answer is accepted or not
-	  private accepted : bool := false;
+	  public accepted : bool := false;
+	  -- Whether this answer is deleted or not
+	  public deleted : bool := false;
 	  
 	  -- The answer's ID
 	  private static id : nat := 0;
 	  -- The ID of the user who posted this answer
-	  private userID : nat := 0;
+	  public userID : nat := 0;
 	  -- The ID of the question this answer belongs to
-	  private questionID : nat := 0; 
+	  public questionID : nat := 0; 
 	  -- This question's comments (IDs)
-	  private comments : set of nat := {};
+	  public comments : set of nat := {};
 
 	operations
 		-- Create Answer
@@ -35,6 +37,22 @@ class Answer
 			accepted := true;
 		);
 		
+		-- Delete Answer
+		public delete : () ==> ()
+		delete() == (
+			deleted := true;
+		);
+		
+		-- Edit Answer
+		public edit : String ==> ()
+		edit(content) == (
+			text := content;
+		) pre len content > 0;
+		
 		-- Add Comment
+		public comment : nat ==> ()
+		comment(commentID) == (
+			comments := comments union {commentID};
+		)
 
 end Answer
