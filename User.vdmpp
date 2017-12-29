@@ -1,25 +1,18 @@
 class User
 		types
-		-- TODO Define types here
 				public String = seq of char;
 		values
 		-- TODO Define values here
 		instance variables
-		-- TODO Define instance variables here
 				private username : String;
-				private password : String;
-				private questions : seq of Question := [];
+				private password : String;				
 		operations
-		-- TODO Define operations here
+				-- Create User
 				public User : String*String ==> User
 				User (name, pass) == (
 						username := name;
 						password := pass;
 						return self;
-				);
-				public askQuestion : String ==> ()
-				askQuestion(text) == (
-						questions := questions ^ [new Question(text)];
 				);
 		functions
 		-- TODO Define functiones here

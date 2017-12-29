@@ -1,2 +1,26 @@
 class Comment
+	types
+		public String = seq of char;
+	
+	instance variables
+		private text : String;
+		private date : String;
+		private userId : nat;
+		private answerId : nat;
+		private static id : nat := 0;
+			
+	operations
+	
+		-- Constructor: Comment (userId, answerId, text)
+		public Comment : nat*nat*String ==> Comment
+		Comment (userID, answerID, body) == (
+			userId := userID;
+			answerId := answerID;
+			text := body;
+			return self;
+		)
+		pre len body > 0;
+		
+	functions
+	traces
 end Comment

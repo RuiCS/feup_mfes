@@ -1,19 +1,73 @@
 class Question
 		types
 				public String = seq of char;
+				
 		instance variables
-			  private text : seq of (char);
-			  private Date : seq of (char);
-			  private Category : seq of (char);
-			  private static id : int := 0;
-			  private answers : seq of (Answer) := [];
+				-- The Question itself
+			  private text : String;
+			  -- The Body of the question
+			  private description : String := "";
+			  -- The date at which the question was posted
+			  private date : String := "";
+			  -- The category the question belongs to
+			  private category : String := "";
+			  -- Whether this question is closed or not
+			  private closed : bool := false;
+			  
+			  -- The question's ID
+			  private static id : nat := 0;
+			  -- The ID of the user who posted this question
+			  private userID : nat := 0;
+			  -- This question's answers (IDs)
+			  private answers : set of nat := {};
+			  
 		operations
-				public Question : String ==> Question
-				Question(question) == (
+				-- Create Question (with empty body and category)
+				public Question : nat*String ==> Question
+				Question(ID, question) == (
+						userID := ID;
 						text := question;
 						return self;
 				)
 				pre len question > 0;
-
-
+				
+				-- Create Question (with nonempty body and empty category)
+				public Question : nat*String*String ==> Question
+				Question(ID, question, context) == (
+					userID := ID;
+					text := question;
+					description := context;
+					return self;
+				)
+				pre len question > 0;
+				
+				-- Create Question (with nonempty body and category)
+				public Question: nat*String*String*String ==> Question
+				Question(ID, question, context, cat) == (
+					userID := ID;
+					text := question;
+					description := context;
+					category := cat;
+					return self;
+				)
+				pre len question > 0;
+				
+				-- Edit Question
+				public edit : String*String ==> ()
+				edit(question, desc) == (
+					text := question;
+					description := desc
+				)
+				pre len question > 0;
+				
+				-- Close Question
+				public close : () ==> ()
+				close () == (
+					closed := true;
+				)
+				-- Maybe add a precondition: question is closed only if an answer is accepted!
+				
+				-- Answer Question
+				-- Accept Answer ?
+				
 end Question

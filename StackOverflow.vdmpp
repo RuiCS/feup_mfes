@@ -1,0 +1,45 @@
+-- The core class of the project
+-- Represents the entire website, storing questions, answers, comments, users, etc.
+
+class StackOverflow
+	types
+		public String = seq of char;
+	values
+	-- TODO Define values here
+	instance variables	
+		private users : map nat to User := {|->};
+		private questions : map nat to Question := {|->};
+		private answers : map nat to Answer := {|->}; 
+		private comments : map nat to Comment := {|->};
+	operations
+		
+		-- TODO
+		-- Create New User
+		public newUser : String * String ==> ()
+		newUser(username, password) == (
+			if users = {|->} then users := users munion { 0 |-> new User(username, password) }
+			else users := users munion { card dom users |-> new User(username, password) };
+		)
+		pre username <> "" and password <> "";
+		
+		-- Delete User
+		
+		-- User Asks Question
+		-- User Deletes Question
+		-- User Edits Question
+		-- User Answers Question
+		-- User Closes Question
+		-- User Deletes Answer
+		-- User Edits Answer
+		-- User Accepts Answer
+		-- User Comments Answer
+		-- User Deletes Comment
+		-- User Edits Comment
+		-- User Votes on Question
+		-- User Votes on Answer		
+		
+	functions
+	-- TODO Define functiones here
+	traces
+	-- TODO Define Combinatorial Test Traces here
+end StackOverflow
