@@ -1,10 +1,40 @@
 class Answer
-instance variables
-  private text : seq of (char);
-  private id : int;
-  private idQuestion : int;
-  private date : seq of (char);
-  private comments : seq of Comment;
-  private closed : bool := false;
+	types
+		public String = seq of char;
+	instance variables
+	  -- The Body of the answer
+	  private text : String := "";
+	  -- The date at which the answer was posted
+	  private date : String := "";
+	  -- Whether this answer is accepted or not
+	  private accepted : bool := false;
+	  
+	  -- The answer's ID
+	  private static id : nat := 0;
+	  -- The ID of the user who posted this answer
+	  private userID : nat := 0;
+	  -- The ID of the question this answer belongs to
+	  private questionID : nat := 0; 
+	  -- This question's comments (IDs)
+	  private comments : set of nat := {};
+
+	operations
+		-- Create Answer
+		public Answer : nat*nat*String ==> Answer
+		Answer(ID, questionId, answer) == (
+				userID := ID;
+				questionID := questionId;
+				text := answer;
+				return self;
+		)
+		pre len answer > 0;
+
+		-- Accept Answer
+		public accept : () ==> ()
+		accept() == (
+			accepted := true;
+		);
+		
+		-- Add Comment
 
 end Answer

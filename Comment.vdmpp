@@ -3,23 +3,31 @@ class Comment
 		public String = seq of char;
 	
 	instance variables
-		private text : String;
-		private date : String;
-		private userId : nat;
-		private answerId : nat;
-		private static id : nat := 0;
+		-- The Body of the comment
+	  private text : String := "";
+	  -- The date at which the answer was posted
+	  private date : String := "";
+	  
+	  -- The answer's ID
+	  private static id : nat := 0;
+	  -- The ID of the user who posted this comment
+	  private userID : nat := 0;
+	  -- The ID of the question this comment belongs to
+	  private questionID : nat := 0;
+	  -- The ID of the answer this comment belongs to
+	  private answerID : nat := 0;
 			
 	operations
-	
-		-- Constructor: Comment (userId, answerId, text)
-		public Comment : nat*nat*String ==> Comment
-		Comment (userID, answerID, body) == (
-			userId := userID;
-			answerId := answerID;
-			text := body;
-			return self;
+		-- Create Comment
+		public Comment : nat*nat*nat*String ==> Comment
+		Comment(ID, questionId, answerId, comment) == (
+				userID := ID;
+				questionID := questionId;
+				answerID := answerId;
+				text := comment;
+				return self;
 		)
-		pre len body > 0;
+		pre len comment > 0;		
 		
 	functions
 	traces

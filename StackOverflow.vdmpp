@@ -7,28 +7,134 @@ class StackOverflow
 	values
 	-- TODO Define values here
 	instance variables	
-		private users : map nat to User := {|->};
-		private questions : map nat to Question := {|->};
-		private answers : map nat to Answer := {|->}; 
-		private comments : map nat to Comment := {|->};
+		public users : map nat to User := {|->};
+		public questions : map nat to Question := {|->};
+		public answers : map nat to Answer := {|->}; 
+		public comments : map nat to Comment := {|->};
+		public loggedUser : [User] := nil;
 	operations
 		
 		-- TODO
 		-- Create New User
-		public newUser : String * String ==> ()
-		newUser(username, password) == (
-			if users = {|->} then users := users munion { 0 |-> new User(username, password) }
-			else users := users munion { card dom users |-> new User(username, password) };
+		public signup : String * String ==> ()
+		signup(username, password) == (
+			users := users munion { card dom users |-> new User(username, password) };
 		)
-		pre username <> "" and password <> "";
+		pre (
+			username <> "" 
+			and password <> ""
+			and forall user in set rng users & user.username <> username
+		);
+		
+		-- Login
+		public login : String * String ==> ()
+		login(username, password) == (
+			for all user in set rng users do(
+				if (user.username = username and user.password = password) then (
+					loggedUser := user;
+				)
+			);
+		)
+		pre (
+			username <> ""
+			and password <> ""
+			and exists1 user in set rng users & user.username = username and user.password = password
+			and loggedUser = nil
+		)
+		post (
+			loggedUser <> nil
+			and loggedUser in set rng users
+		);
+		
+		-- Logout
+		public logout : () ==> ()
+		logout() == (
+			loggedUser := nil;
+		)
+		pre loggedUser <> nil
+		post loggedUser = nil;
+		
+		-- Get the logged user's ID
+		public getLoggedID : () ==> nat
+		getLoggedID() == (
+			return (inverse (users :> {loggedUser}))(loggedUser);
+		)
+		pre (
+			loggedUser <> nil
+			and loggedUser in set rng users
+		)
+		post (
+			card dom (users :> {loggedUser}) = 1
+		);
 		
 		-- Delete User
-		
+				
 		-- User Asks Question
-		-- User Deletes Question
-		-- User Edits Question
+		public askQuestion : String*String*String ==> ()
+		askQuestion(question, description, category) == (
+			-- update questions (create question)
+			questions := questions munion { card dom questions |-> new Question(getLoggedID(), question, description, category) };
+			-- update user's questions
+			loggedUser.addQuestion((card dom questions) - 1);
+		)
+		pre ( 
+			question <> ""
+			and loggedUser <> nil
+			and loggedUser in set rng users
+		)
+		post (
+			card dom questions = card dom questions~ + 1
+			--card loggedUser.questions = card loggedUser.questions~ + 1;
+		);
+		
+		-- User Deletes (Own) Question
+		public deleteQuestion : nat ==> ()
+		deleteQuestion(questionID) == (
+			questions(questionID).delete();
+			loggedUser.questions := loggedUser.questions \ {questionID};
+		)
+		pre (
+			loggedUser <> nil
+			and questionID < card dom questions
+			and exists1 question in set dom questions & question = questionID
+			and questionID in set loggedUser.questions
+		)
+		post (
+			card dom questions = card dom questions~
+		  and	questions(questionID).deleted = true
+			-- card loggedUser.questions = card loggedUser.questions~ -1;
+		);
+		
+		-- User Edits (Own) Question
+		public editQuestion : nat*String*String ==> ()
+		editQuestion(questionID, question, desc) == (
+			questions(questionID).edit(question, desc);
+		)
+		pre (
+			loggedUser <> nil
+			and questionID < card dom questions
+			and question <> ""
+			and exists1 qid in set dom questions & qid = questionID
+			and questionID in set loggedUser.questions
+		);
+		
 		-- User Answers Question
-		-- User Closes Question
+		public answerQuestion : nat*String ==> ()
+		answerQuestion(questionID, answer) == (
+			answers := answers munion {card dom answers |-> new Answer(getLoggedID(), questionID, answer) };
+			questions(questionID).answer((card dom answers) -1);
+		)
+		pre (
+			loggedUser <> nil
+			and questionID < card dom questions
+			and answer <> ""
+			and exists1 qid in set dom questions & qid = questionID
+		)
+		post (
+			card dom answers = card dom answers~ + 1
+			-- and questions(questionID).answers = questions(questionID).answers~ + 1
+		);
+				
 		-- User Deletes Answer
 		-- User Edits Answer
 		-- User Accepts Answer
