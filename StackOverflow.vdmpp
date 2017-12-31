@@ -331,7 +331,6 @@ class StackOverflow
 			card votes = card votes~ + 1
 		);
 		
-		
 		-- Print Users
 		public printUsers : () ==> ()
 		printUsers () == (
@@ -340,6 +339,35 @@ class StackOverflow
 				for all qID in set user.questions do (
 					Printer`Out("\tQ"^Printer`natToString(qID) ^ ":\n\tCategory: " ^ questions(qID).category ^ "\n\tQuestion: " ^ questions(qID).text ^ "\n\tDesc: " ^ questions(qID).description ^"\n");
 				) 
+			)
+		);
+		
+		-- Print Questions
+		public printQuestions : () ==> ()
+		printQuestions () == (
+			for all qID in set dom questions do (
+				Printer`Out("Q"^Printer`natToString(qID) ^ 
+										":\nCategory: " ^ questions(qID).category ^ 
+										"\nQuestion: " ^questions(qID).text ^ 
+										"\nDescription" ^ questions(qID).description ^ 
+										"\nDate: " ^ questions(qID).date ^ 
+										"\nVotes: X Upvotes & Y Downvotes\n" ^
+										"\nAnswers:\n" );
+				for all aID in set questions(qID).answers do (
+					Printer`Out("\tA"^Printer`natToString(aID) ^
+											"\n\tanswered by " ^ users(answers(aID).userID).username ^
+											"\n\tanswer: " ^ answers(aID).text ^
+											"\n\tdate: " ^ answers(aID).date ^
+											"\n\tVotes: X Upvotes & Y Downvotes\n" ^
+											"\n\tComments:\n" );
+					for all cID in set answers(aID).comments do (
+						Printer`Out("\tA"^Printer`natToString(cID) ^
+											"\n\t\tcomment by " ^ users(comments(cID).userID).username ^
+											"\n\t\tcomment: " ^ comments(cID).text ^
+											"\n\t\tdate: " ^ comments(cID).date ^
+											"\n\t\tVotes: X Upvotes & Y Downvotes\n");
+					)
+				)
 			)
 		)
 		

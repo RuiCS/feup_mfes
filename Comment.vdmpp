@@ -4,9 +4,9 @@ class Comment
 	
 	instance variables
 		-- The Body of the comment
-	  private text : String := "";
+	  public text : String := "";
 	  -- The date at which the answer was posted
-	  private date : String := "";
+	  public date : String := "";
 	  
 	  -- The answer's ID
 	  private static id : nat := 0;

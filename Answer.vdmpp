@@ -3,9 +3,9 @@ class Answer
 		public String = seq of char;
 	instance variables
 	  -- The Body of the answer
-	  private text : String := "";
+	  public text : String := "";
 	  -- The date at which the answer was posted
-	  private date : String := "";
+	  public date : String := "";
 	  -- Whether this answer is accepted or not
 	  public accepted : bool := false;
 	  -- Whether this answer is deleted or not
