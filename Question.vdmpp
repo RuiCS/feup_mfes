@@ -29,6 +29,7 @@ class Question
 				Question(ID, question) == (
 						userID := ID;
 						text := question;
+						date := SystemTime`time();
 						return self;
 				)
 				pre len question > 0;
@@ -39,6 +40,7 @@ class Question
 					userID := ID;
 					text := question;
 					description := context;
+					date := SystemTime`time();
 					return self;
 				)
 				pre len question > 0;
@@ -50,6 +52,7 @@ class Question
 					text := question;
 					description := context;
 					category := cat;
+					date := SystemTime`time();
 					return self;
 				)
 				pre len question > 0;

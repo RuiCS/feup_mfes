@@ -27,6 +27,7 @@ class Answer
 				userID := ID;
 				questionID := questionId;
 				text := answer;
+				date := SystemTime`time();
 				return self;
 		)
 		pre len answer > 0;

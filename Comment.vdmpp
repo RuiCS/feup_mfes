@@ -27,6 +27,7 @@ class Comment
 				questionID := questionId;
 				answerID := answerId;
 				text := comment;
+				date := SystemTime`time();
 				return self;
 		)
 		pre len comment > 0;		
