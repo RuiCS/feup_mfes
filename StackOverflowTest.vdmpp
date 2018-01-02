@@ -1,0 +1,77 @@
+class StackOverflowTest
+	types
+		public String = seq of char;
+instance variables
+	s : StackOverflow := new StackOverflow();
+
+operations
+
+	private assertTrue: bool ==> ()
+	assertTrue(cond) == return
+	pre cond;
+	
+	-- check if a user is registered
+	private testCreateUser : () ==> ()
+	testCreateUser() == (
+		dcl user: User := new User("user", "pass");
+		s.signup("user", "pass");
+		
+		assertTrue(user.username = "user");
+		assertTrue(user.password = "pass");
+		assertTrue(s.users(0).equals(user));
+	);
+	
+	private testCreateSameUser : () ==> ()
+	testCreateSameUser() == (
+--		dcl user: User := new User("user", "pass");
+		s.signup("user", "pass");
+--		s.signup("user", "pass2");
+	);
+	
+	private testLoginUser : () ==> ()
+	testLoginUser() == (
+--		dcl user: User := new User("user", "pass");
+--		s.signup("user", "pass");
+		s.login("user", "pass");
+		assertTrue(s.loggedUser <> nil);
+	);
+	
+	private testLogoutUser : () ==> ()
+	testLogoutUser() == (
+--		dcl user: User := new User("user", "pass");
+--		s.signup("user", "pass");
+--		s.login("user", "pass");
+		s.logout();
+		assertTrue(s.loggedUser = nil);
+	);
+	
+	private testLoggedID : () ==> ()
+	testLoggedID() == (
+--		dcl user: User := new User("user", "pass");
+		s.signup("user", "pass");
+		s.login("user", "pass");
+		assertTrue(s.getLoggedID() = 0);
+	);
+	
+	private testAskQuestion : () ==> ()
+	testAskQuestion() == (
+--		dcl user: User := new User("user", "pass");
+--		s.signup("user", "pass");
+		s.login("user", "pass");
+		s.askQuestion("what is the square root of PI?", "example description", "math");
+		
+--		assertTrue()
+	);
+	
+	public static main: () ==> ()
+	main() == (
+		dcl s : StackOverflowTest := new StackOverflowTest();
+		s.testCreateUser();
+--		new StackOverflowTest().testCreateSameUser();
+		s.testLoginUser();
+		s.testLogoutUser();
+		new StackOverflowTest().testLoggedID();
+		s.testAskQuestion();
+	);
+		  
+end StackOverflowTest

@@ -23,6 +23,11 @@ class User
 					questions := questions union {questionID};
 				);
 				
+				public equals : User ==> bool
+				equals(user) == (
+					return user.username = username and user.password = password;
+				)
+				
 		functions
 		-- TODO Define functiones here
 		traces
