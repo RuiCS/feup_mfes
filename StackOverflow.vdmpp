@@ -13,6 +13,7 @@ class StackOverflow
 		private answers : map nat to Answer := {|->}; 
 		private comments : map nat to Comment := {|->};
 		public static graphics : gui_Graphics:= new gui_Graphics();
+		private busy : bool := true;
 	operations
 		
 		-- TODO
@@ -47,9 +48,24 @@ class StackOverflow
 		public Run: () ==> ()
 		Run() == (
 				graphics.init();
+				start(self);
+				isFinished();
 		);
+		public isFinished : () ==> () 
+  			isFinished() == skip;
+		
 	functions
 	-- TODO Define functiones here
 	traces
 	-- TODO Define Combinatorial Test Traces here
+	
+	thread
+	(
+		while busy do
+		(
+			a := 5;
+		);
+	)
+sync
+	per isFinished => not busy;
 end StackOverflow
