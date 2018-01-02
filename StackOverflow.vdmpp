@@ -7,41 +7,240 @@ class StackOverflow
 	values
 	-- TODO Define values here
 	instance variables	
-		private a : int;
-		private users : map nat to User := {|->};
-		private questions : map nat to Question := {|->};
-		private answers : map nat to Answer := {|->}; 
-		private comments : map nat to Comment := {|->};
-		public static graphics : gui_Graphics:= new gui_Graphics();
-		private busy : bool := true;
+		public users : map nat to User := {|->};
+		public questions : map nat to Question := {|->};
+		public answers : map nat to Answer := {|->}; 
+		public comments : map nat to Comment := {|->};
+		public votes : set of Vote := {};
+		public busy : bool := true;
+    public static graphics : gui_Graphics:= new gui_Graphics(); 
+		public loggedUser : [User] := nil;
 	operations
 		
 		-- TODO
 		public StackOverflow : () ==> StackOverflow
 		StackOverflow () == (
-				a := 3;
+				busy := true;
 		);
 		
 		-- Create New User
-		public newUser : String * String ==> ()
-		newUser(username, password) == (
-			if users = {|->} then users := users munion { 0 |-> new User(username, password) }
-			else users := users munion { card dom users |-> new User(username, password) };
+		public signup : String * String ==> ()
+		signup(username, password) == (
+			users := users munion { card dom users |-> new User(username, password) };
 		)
-		pre username <> "" and password <> "";
+		pre (
+			username <> "" 
+			and password <> ""
+			and forall user in set rng users & user.username <> username
+		);
+		
+		-- Login
+		public login : String * String ==> ()
+		login(username, password) == (
+			for all user in set rng users do(
+				if (user.username = username and user.password = password) then (
+					loggedUser := user;
+				)
+			);
+		)
+		pre (
+			username <> ""
+			and password <> ""
+			and exists1 user in set rng users & user.username = username and user.password = password
+			and loggedUser = nil
+		)
+		post (
+			loggedUser <> nil
+			and loggedUser in set rng users
+		);
+		
+		-- Logout
+		public logout : () ==> ()
+		logout() == (
+			loggedUser := nil;
+		)
+		pre loggedUser <> nil
+		post loggedUser = nil;
+		
+		-- Get the logged user's ID
+		public getLoggedID : () ==> nat
+		getLoggedID() == (
+			return (inverse (users :> {loggedUser}))(loggedUser);
+		)
+		pre (
+			loggedUser <> nil
+			and loggedUser in set rng users
+		)
+		post (
+			card dom (users :> {loggedUser}) = 1
+		);
 		
 		-- Delete User
-		
+				
 		-- User Asks Question
-		-- User Deletes Question
-		-- User Edits Question
+		public askQuestion : String*String*String ==> ()
+		askQuestion(question, description, category) == (
+			-- update questions (create question)
+			questions := questions munion { card dom questions |-> new Question(getLoggedID(), question, description, category) };
+			-- update user's questions
+			loggedUser.addQuestion((card dom questions) - 1);
+		)
+		pre ( 
+			question <> ""
+			and loggedUser <> nil
+			and loggedUser in set rng users
+		)
+		post (
+			card dom questions = card dom questions~ + 1
+			--card loggedUser.questions = card loggedUser.questions~ + 1;
+		);
+		
+		-- User Deletes (Own) Question, + related answers and comments
+		public deleteQuestion : nat ==> ()
+		deleteQuestion(questionID) == (
+			questions(questionID).delete();
+			loggedUser.questions := loggedUser.questions \ {questionID};
+			for all aID in set questions(questionID).answers do (
+				answers(aID).delete();
+				questions(answers(aID).questionID).answers := questions(answers(aID).questionID).answers \ {aID};
+				for all cID in set answers(aID).comments do (
+					comments(cID).delete();
+					answers(aID).comments := answers(aID).comments \ {cID};
+				)
+			)
+		)
+		pre (
+			loggedUser <> nil
+			and questionID < card dom questions
+			and exists1 question in set dom questions & question = questionID
+			and questionID in set loggedUser.questions
+		)
+		post (
+			card dom questions = card dom questions~
+		  and	questions(questionID).deleted = true
+			-- card loggedUser.questions = card loggedUser.questions~ -1;
+		);
+		
+		-- User Edits (Own) Question
+		public editQuestion : nat*String*String ==> ()
+		editQuestion(questionID, question, desc) == (
+			questions(questionID).edit(question, desc);
+		)
+		pre (
+			loggedUser <> nil
+			and questionID < card dom questions
+			and question <> ""
+			and exists1 qid in set dom questions & qid = questionID
+			and questionID in set loggedUser.questions
+			and questions(questionID).closed = false
+		);
+		
 		-- User Answers Question
-		-- User Closes Question
+		public answerQuestion : nat*String ==> ()
+		answerQuestion(questionID, answer) == (
+			answers := answers munion {card dom answers |-> new Answer(getLoggedID(), questionID, answer) };
+			questions(questionID).answer((card dom answers) -1);
+		)
+		pre (
+			loggedUser <> nil
+			and questionID < card dom questions
+			and answer <> ""
+			and exists1 qid in set dom questions & qid = questionID
+		)
+		post (
+			card dom answers = card dom answers~ + 1
+			-- and questions(questionID).answers = questions(questionID).answers~ + 1
+		);
+				
 		-- User Deletes Answer
+		public deleteAnswer : nat ==> ()
+		deleteAnswer(answerID) == (
+			if (answers(answerID).userID = getLoggedID()) then answers(answerID).delete();
+			questions(answers(answerID).questionID).answers := questions(answers(answerID).questionID).answers \ {answerID};
+			for all cID in set answers(answerID).comments do comments(cID).delete();
+		)
+		pre (
+			loggedUser <> nil
+			and answerID < card dom answers
+			and exists1 answer in set dom answers & answer = answerID
+		)
+		post (
+			card dom answers = card dom answers~
+			and answers(answerID).deleted = true
+		);
+		
 		-- User Edits Answer
+		public editAnswer : nat*String ==> ()
+		editAnswer(answerID, content) == (
+			if (answers(answerID).userID = getLoggedID()) then answers(answerID).edit(content);
+		)
+		pre (
+			loggedUser <> nil
+			and content <> ""
+			and answerID < card dom answers
+			and exists1 answer in set dom answers & answer = answerID
+		)
+		post (
+			card dom answers = card dom answers~
+		);
+		
 		-- User Accepts Answer
+		public acceptAnswer : nat*nat ==> ()
+		acceptAnswer(questionID, answerID) == (
+			answers(answerID).accept();
+			questions(questionID).close();
+		) 
+		pre (
+			loggedUser <> nil
+			and questionID < card dom questions
+			and answerID < card dom answers
+			and exists1 question in set dom questions & question = questionID
+			and exists1 answer in set dom answers & answer = answerID
+			and answers(answerID).questionID = questionID
+			and not questions(questionID).closed
+			and forall aID in set questions(questionID).answers & not answers(aID).accepted
+		) 
+		post (
+			questions(questionID).closed
+			and answers(answerID).accepted
+		);
+		
 		-- User Comments Answer
+		public comment : nat*nat*String ==> ()
+		comment(questionID, answerID, content) == (
+			comments := comments munion { card dom comments |-> new Comment(getLoggedID(), questionID, answerID, content) };
+			answers(answerID).comment((card dom comments) - 1);
+		)
+		pre (
+			content <> ""
+			and loggedUser <> nil
+			and questionID < card dom questions
+			and answerID < card dom answers
+			and exists1 question in set dom questions & question= questionID
+			and exists1 answer in set dom answers & answer = answerID
+		)
+		post (
+			card dom comments = card dom comments~ + 1
+			--and card answers(answerID).comments = card answers(answerID).comments~ + 1
+		);
+		
 		-- User Deletes Comment
+		public deleteComment : nat ==> ()
+		deleteComment(commentID) == (
+			if (comments(commentID).userID = getLoggedID()) then (
+				comments(commentID).delete();
+				answers(comments(commentID).answerID).comments := answers(comments(commentID).answerID).comments \ {commentID};
+			)		
+		)
+		pre (
+			loggedUser <> nil
+			and commentID < card dom comments
+			and exists1 comment in set dom comments & comment = commentID
+		)
+		post (
+			comments(commentID).deleted = true
+		);
+		
 		-- User Edits Comment
 		-- User Votes on Question
 		-- User Votes on Answer		
@@ -53,6 +252,141 @@ class StackOverflow
 		);
 		public isFinished : () ==> () 
   			isFinished() == skip;
+		public editComment : nat*String ==> ()
+		editComment(commentID, content) == (
+			if (comments(commentID).userID = getLoggedID()) then (
+				comments(commentID).edit(content);
+			)
+		)
+		pre (
+			loggedUser <> nil
+			and commentID < card dom comments
+			and exists1 comment in set dom comments & comment = commentID
+			and len content > 0
+		)
+		post(
+			card dom comments = card dom comments~ 
+		);
+		
+		-- User upvotes Question
+		public upvoteQuestion : nat ==> ()
+		upvoteQuestion(questionID) == (
+			votes := votes union {new Upvote(0,getLoggedID(),questionID)};
+		)
+		pre (
+			loggedUser <> nil
+			and not questions(questionID).userID = (inverse (users :> {loggedUser}))(loggedUser)
+			and exists1 question in set dom questions & question = questionID
+			and not questions(questionID).deleted
+			and not exists1 vote in set votes & (
+				isofclass(Vote, vote)
+				and vote.userID = (inverse (users :> {loggedUser}))(loggedUser)
+				and vote.questionID = questionID
+			)
+		)
+		post(
+			card votes = card votes~ + 1
+		);
+		
+		-- User downvotes Question
+		public downvoteQuestion : nat ==> ()
+		downvoteQuestion(questionID) == (
+			votes := votes union {new Downvote(0,getLoggedID(),questionID)};
+		)
+		pre (
+			loggedUser <> nil
+			and not questions(questionID).userID = (inverse (users :> {loggedUser}))(loggedUser)
+			and exists1 question in set dom questions & question = questionID
+			and not questions(questionID).deleted
+			and not exists1 vote in set votes & (
+				isofclass(Vote, vote)
+				and vote.userID = (inverse (users :> {loggedUser}))(loggedUser)
+				and vote.questionID = questionID
+			)
+		)
+		post(
+			card votes = card votes~ + 1
+		);
+	
+		-- User upvotes answer
+		public upvoteAnswer : nat ==> ()
+		upvoteAnswer(answerID) == (
+			votes := votes union {new Upvote(0,getLoggedID(),answerID)};
+		)
+		pre (
+			loggedUser <> nil
+			and not answers(answerID).userID = (inverse (users :> {loggedUser}))(loggedUser)
+			and exists1 answer in set dom answers & answer = answerID
+			and not answers(answerID).deleted
+			and not exists1 vote in set votes & (
+				isofclass(Vote, vote)
+				and vote.userID = (inverse (users :> {loggedUser}))(loggedUser)
+				and vote.questionID = answerID
+			)
+		)
+		post(
+			card votes = card votes~ + 1
+		);
+		
+		-- User downvotes answer
+		public downvoteAnswer : nat ==> ()
+		downvoteAnswer(answerID) == (
+			votes := votes union {new Downvote(0,getLoggedID(),answerID)};
+		)
+		pre (
+			loggedUser <> nil
+			and not answers(answerID).userID = (inverse (users :> {loggedUser}))(loggedUser)
+			and exists1 answer in set dom answers & answer = answerID
+			and not answers(answerID).deleted
+			and not exists1 vote in set votes & (
+				isofclass(Vote, vote)
+				and vote.userID = (inverse (users :> {loggedUser}))(loggedUser)
+				and vote.questionID = answerID
+			)
+		)
+		post(
+			card votes = card votes~ + 1
+		);
+		
+		-- Print Users
+		public printUsers : () ==> ()
+		printUsers () == (
+			for all user in set rng users do (
+				Printer`Out("User - " ^ user.username ^ ", " ^ user.password ^ "\n" ^ "Questions: \n ");
+				for all qID in set user.questions do (
+					Printer`Out("\tQ"^Printer`natToString(qID) ^ ":\n\tCategory: " ^ questions(qID).category ^ "\n\tQuestion: " ^ questions(qID).text ^ "\n\tDesc: " ^ questions(qID).description ^"\n");
+				) 
+			)
+		);
+		
+		-- Print Questions
+		public printQuestions : () ==> ()
+		printQuestions () == (
+			for all qID in set dom questions do (
+				Printer`Out("Q"^Printer`natToString(qID) ^ 
+										":\nCategory: " ^ questions(qID).category ^ 
+										"\nQuestion: " ^questions(qID).text ^ 
+										"\nDescription" ^ questions(qID).description ^ 
+										"\nDate: " ^ questions(qID).date ^ 
+										"\nVotes: X Upvotes & Y Downvotes\n" ^
+										"\nAnswers:\n" );
+				for all aID in set questions(qID).answers do (
+					Printer`Out("\tA"^Printer`natToString(aID) ^
+											"\n\tanswered by " ^ users(answers(aID).userID).username ^
+											"\n\tanswer: " ^ answers(aID).text ^
+											"\n\tdate: " ^ answers(aID).date ^
+											"\n\tVotes: X Upvotes & Y Downvotes\n" ^
+											"\n\tComments:\n" );
+					for all cID in set answers(aID).comments do (
+						Printer`Out("\tA"^Printer`natToString(cID) ^
+											"\n\t\tcomment by " ^ users(comments(cID).userID).username ^
+											"\n\t\tcomment: " ^ comments(cID).text ^
+											"\n\t\tdate: " ^ comments(cID).date ^
+											"\n\t\tVotes: X Upvotes & Y Downvotes\n");
+					)
+				)
+			)
+		)
 		
 	functions
 	-- TODO Define functiones here
@@ -63,7 +397,7 @@ class StackOverflow
 	(
 		while busy do
 		(
-			a := 5;
+			busy := true;
 		);
 	)
 sync

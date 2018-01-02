@@ -1,0 +1,7 @@
+class SystemTime
+
+operations
+public static time : () ==> seq of char
+time() == is not yet specified;
+
+end SystemTime

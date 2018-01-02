@@ -4,22 +4,24 @@ class Question
 				
 		instance variables
 				-- The Question itself
-			  private text : String;
+			  public text : String;
 			  -- The Body of the question
-			  private description : String := "";
+			  public description : String := "";
 			  -- The date at which the question was posted
-			  private date : String := "";
+			  public date : String := "";
 			  -- The category the question belongs to
-			  private category : String := "";
+			  public category : String := "";
 			  -- Whether this question is closed or not
-			  private closed : bool := false;
+			  public closed : bool := false;
+			  -- Whether this question has been deleted or not
+			  public deleted : bool := false;
 			  
 			  -- The question's ID
 			  private static id : nat := 0;
 			  -- The ID of the user who posted this question
-			  private userID : nat := 0;
+			  public userID : nat := 0;
 			  -- This question's answers (IDs)
-			  private answers : set of nat := {};
+			  public answers : set of nat := {};
 			  
 		operations
 				-- Create Question (with empty body and category)
@@ -27,6 +29,7 @@ class Question
 				Question(ID, question) == (
 						userID := ID;
 						text := question;
+						date := SystemTime`time();
 						return self;
 				)
 				pre len question > 0;
@@ -37,6 +40,7 @@ class Question
 					userID := ID;
 					text := question;
 					description := context;
+					date := SystemTime`time();
 					return self;
 				)
 				pre len question > 0;
@@ -48,6 +52,7 @@ class Question
 					text := question;
 					description := context;
 					category := cat;
+					date := SystemTime`time();
 					return self;
 				)
 				pre len question > 0;
@@ -64,10 +69,21 @@ class Question
 				public close : () ==> ()
 				close () == (
 					closed := true;
-				)
+				);
 				-- Maybe add a precondition: question is closed only if an answer is accepted!
 				
+				-- Delete Question
+				public delete : () ==> ()
+				delete () == (
+					deleted := true;
+				);
+				
 				-- Answer Question
+				public answer : nat ==> ()
+				answer (answerID) == (
+					answers := answers union {answerID};
+				);
+				
 				-- Accept Answer ?
 				
 end Question

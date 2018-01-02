@@ -1,0 +1,16 @@
+class Upvote is subclass of Vote
+	operations
+		public Upvote : nat*nat*nat ==> Upvote
+		Upvote(type, uID, postID) == (
+			userID := uID;
+			cases type:
+				0 -> questionID := postID,
+				1 -> answerID := postID
+			end;
+			return self;
+		);
+	functions
+	-- TODO Define functiones here
+	traces
+	-- TODO Define Combinatorial Test Traces here
+end Upvote

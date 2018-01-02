@@ -4,8 +4,10 @@ class User
 		values
 		-- TODO Define values here
 		instance variables
-				private username : String;
-				private password : String;				
+				public username : String;
+				public email : String;
+				public password : String;
+				public questions : set of nat := {};
 		operations
 				-- Create User
 				public User : String*String ==> User
@@ -14,6 +16,13 @@ class User
 						password := pass;
 						return self;
 				);
+				
+				-- Add question
+				public addQuestion : nat ==> ()
+				addQuestion (questionID) == (
+					questions := questions union {questionID};
+				);
+				
 		functions
 		-- TODO Define functiones here
 		traces

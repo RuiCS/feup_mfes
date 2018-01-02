@@ -3,24 +3,47 @@ class Comment
 		public String = seq of char;
 	
 	instance variables
-		private text : String;
-		private date : String;
-		private userId : nat;
-		private answerId : nat;
-		private static id : nat := 0;
+		-- The Body of the comment
+	  public text : String := "";
+	  -- The date at which the answer was posted
+	  public date : String := "";
+	  
+	  -- The answer's ID
+	  private static id : nat := 0;
+	  -- The ID of the user who posted this comment
+	  public userID : nat := 0;
+	  -- The ID of the question this comment belongs to
+	  private questionID : nat := 0;
+	  -- The ID of the answer this comment belongs to
+	  public answerID : nat := 0;
+	  -- Whether this comment has been deleted or not
+	  public deleted : bool := false;
 			
 	operations
-	
-		-- Constructor: Comment (userId, answerId, text)
-		public Comment : nat*nat*String ==> Comment
-		Comment (userID, answerID, body) == (
-			userId := userID;
-			answerId := answerID;
-			text := body;
-			return self;
+		-- Create Comment
+		public Comment : nat*nat*nat*String ==> Comment
+		Comment(ID, questionId, answerId, comment) == (
+				userID := ID;
+				questionID := questionId;
+				answerID := answerId;
+				text := comment;
+				date := SystemTime`time();
+				return self;
 		)
-		pre len body > 0;
+		pre len comment > 0;		
 		
+		-- Delete comment
+		public delete : () ==> ()
+		delete() == (
+			deleted := true;
+		);
+		
+		-- Edit comment
+		public edit : String ==> ()
+		edit (content) == (
+			text := content;
+		) pre len content > 0;
+				
 	functions
 	traces
 end Comment
