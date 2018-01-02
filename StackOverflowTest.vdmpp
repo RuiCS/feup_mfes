@@ -15,6 +15,8 @@ operations
 	testCreateUser() == (
 		dcl user: User := new User("user", "pass");
 		s.signup("user", "pass");
+		s.signup("user2", "pass2");
+		s.signup("user3", "pass3");
 		
 		assertTrue(user.username = "user");
 		assertTrue(user.password = "pass");
@@ -55,12 +57,49 @@ operations
 	
 	private testAskQuestion : () ==> ()
 	testAskQuestion() == (
---		dcl user: User := new User("user", "pass");
---		s.signup("user", "pass");
 		s.login("user", "pass");
 		s.askQuestion("what is the square root of PI?", "example description", "math");
-		
+		s.logout();
 --		assertTrue()
+	);
+	
+	private testAnswerQuestion : () ==> ()
+	testAnswerQuestion() == (
+		s.login("user2", "pass2");
+		s.answerQuestion(0, "The answer is 1.73454256324");
+		s.logout();
+--		assertTrue()
+	);
+	
+	private testUpvoteQuestion : () ==> ()
+	testUpvoteQuestion() == (
+		s.login("user2", "pass2");
+		s.upvoteQuestion(0);
+		s.logout();
+	);
+	
+	private testDownvoteQuestion : () ==> ()
+	testDownvoteQuestion() == (
+		s.login("user3", "pass3");
+		s.downvoteQuestion(0);
+		s.logout();
+	);
+	
+		private testAcceptAnswer : () ==> ()
+	testAcceptAnswer() == (
+		s.login("user", "pass");
+		s.acceptAnswer(0, 0);
+		s.logout();
+	);
+	
+	private printUsers : () ==> ()
+	printUsers() == (
+		s.printUsers();
+	);
+	
+	private printQuestions : () ==> ()
+	printQuestions() == (
+		s.printQuestions();
 	);
 	
 	public static main: () ==> ()
@@ -72,6 +111,14 @@ operations
 		s.testLogoutUser();
 		new StackOverflowTest().testLoggedID();
 		s.testAskQuestion();
+		s.testAnswerQuestion();
+		s.testUpvoteQuestion();
+		s.testDownvoteQuestion();
+		
+		s.testAcceptAnswer();
+		
+		s.printUsers();
+		s.printQuestions();
 	);
 		  
 end StackOverflowTest
