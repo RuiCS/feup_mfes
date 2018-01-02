@@ -366,7 +366,7 @@ class StackOverflow
 				Printer`Out("Q"^Printer`natToString(qID) ^ 
 										":\nCategory: " ^ questions(qID).category ^ 
 										"\nQuestion: " ^questions(qID).text ^ 
-										"\nDescription" ^ questions(qID).description ^ 
+										"\nDescription: " ^ questions(qID).description ^ 
 										"\nDate: " ^ questions(qID).date ^ 
 										"\nVotes: X Upvotes & Y Downvotes\n" ^
 										"\nAnswers:\n" );

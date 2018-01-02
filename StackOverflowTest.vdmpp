@@ -49,7 +49,7 @@ operations
 	
 	private testLoggedID : () ==> ()
 	testLoggedID() == (
---		dcl user: User := new User("user", "pass");
+		assertTrue(s.loggedUser = nil);
 		s.signup("user", "pass");
 		s.login("user", "pass");
 		assertTrue(s.getLoggedID() = 0);
@@ -58,39 +58,104 @@ operations
 	private testAskQuestion : () ==> ()
 	testAskQuestion() == (
 		s.login("user", "pass");
+		assertTrue(card dom s.questions = 0);
 		s.askQuestion("what is the square root of PI?", "example description", "math");
 		s.logout();
---		assertTrue()
+		assertTrue(card dom s.questions = 1);
 	);
 	
 	private testAnswerQuestion : () ==> ()
 	testAnswerQuestion() == (
 		s.login("user2", "pass2");
+		assertTrue(card dom s.answers = 0);
+		assertTrue(s.getLoggedID() = 1);
 		s.answerQuestion(0, "The answer is 1.73454256324");
 		s.logout();
---		assertTrue()
+		assertTrue(card dom s.questions = 1);
+		assertTrue(card dom s.answers = 1);
+		assertTrue(s.answers(0).text = "The answer is 1.73454256324");
+		assertTrue(s.answers(0).userID = 1);
 	);
 	
 	private testUpvoteQuestion : () ==> ()
 	testUpvoteQuestion() == (
 		s.login("user2", "pass2");
+		assertTrue(card s.votes = 0);
 		s.upvoteQuestion(0);
+		assertTrue(card s.votes = 1);
 		s.logout();
 	);
 	
 	private testDownvoteQuestion : () ==> ()
 	testDownvoteQuestion() == (
 		s.login("user3", "pass3");
+		assertTrue(card s.votes = 1);
 		s.downvoteQuestion(0);
+		assertTrue(card s.votes = 2);		
 		s.logout();
 	);
 	
-		private testAcceptAnswer : () ==> ()
+		private testUpvoteAnswer : () ==> ()
+	testUpvoteAnswer() == (
+		s.login("user", "pass");
+		assertTrue(card s.votes = 2);
+		s.upvoteAnswer(0);
+		assertTrue(card s.votes = 3);
+		s.logout();
+	);
+	
+	private testDownvoteAnswer : () ==> ()
+	testDownvoteAnswer() == (
+		s.login("user3", "pass3");
+		assertTrue(card s.votes = 3);
+		assertTrue(s.getLoggedID() = 2);
+		assertTrue(s.answers(0).userID <> 2);
+		s.downvoteAnswer(0);
+		assertTrue(card s.votes = 4);		
+		s.logout();
+	);
+	
+	private testAcceptAnswer : () ==> ()
 	testAcceptAnswer() == (
 		s.login("user", "pass");
 		s.acceptAnswer(0, 0);
+		assertTrue(s.answers(0).accepted= true);
+		assertTrue(s.questions(0).closed = true);
 		s.logout();
 	);
+	
+	private testEditQuestion : () ==> ()
+	testEditQuestion() == (
+		s.login("user", "pass");
+		assertTrue(s.questions(0).text = "what is the square root of PI?");
+		assertTrue(s.questions(0).description = "example description");
+		
+		s.editQuestion(0, "What is the value of cubic root of PI?", "mock description");
+		assertTrue(s.questions(0).text = "What is the value of cubic root of PI?");
+		assertTrue(s.questions(0).description = "mock description");	
+		s.logout();	
+	);
+	
+	private testEditAnswer : () ==> ()
+	testEditAnswer() == (
+		s.login("user2", "pass2");
+		assertTrue(s.answers(0).text = "The answer is 1.73454256324");
+		
+		s.editAnswer(0, "The answer is 1.34534421");
+		assertTrue(s.answers(0).text = "The answer is 1.34534421");
+		s.logout();	
+	);
+	
+	private comment: () ==> ()
+	comment() == (
+		s.login("user3", "pass3");
+		assertTrue(card dom s.comments = 0);
+		
+		s.comment(0, 0, "No, you're wrong.");
+		assertTrue(card dom s.comments = 1);
+		s.logout();	
+	);
+	
 	
 	private printUsers : () ==> ()
 	printUsers() == (
@@ -111,10 +176,21 @@ operations
 		s.testLogoutUser();
 		new StackOverflowTest().testLoggedID();
 		s.testAskQuestion();
-		s.testAnswerQuestion();
+		
 		s.testUpvoteQuestion();
 		s.testDownvoteQuestion();
 		
+		s.testAnswerQuestion();
+		
+		s.printQuestions();
+
+		s.testUpvoteAnswer();
+		s.testDownvoteAnswer();
+		
+		s.testEditQuestion();
+		s.comment();
+		
+		s.testEditAnswer();
 		s.testAcceptAnswer();
 		
 		s.printUsers();
