@@ -311,7 +311,7 @@ class StackOverflow
 		-- User upvotes answer
 		public upvoteAnswer : nat ==> ()
 		upvoteAnswer(answerID) == (
-			votes := votes union {new Upvote(0,getLoggedID(),answerID)};
+			votes := votes union {new Upvote(1,getLoggedID(),answerID)};
 		)
 		pre (
 			loggedUser <> nil
@@ -321,7 +321,7 @@ class StackOverflow
 			and not exists1 vote in set votes & (
 				isofclass(Vote, vote)
 				and vote.userID = (inverse (users :> {loggedUser}))(loggedUser)
-				and vote.questionID = answerID
+				and vote.answerID = answerID
 			)
 		)
 		post(
@@ -331,7 +331,7 @@ class StackOverflow
 		-- User downvotes answer
 		public downvoteAnswer : nat ==> ()
 		downvoteAnswer(answerID) == (
-			votes := votes union {new Downvote(0,getLoggedID(),answerID)};
+			votes := votes union {new Downvote(1,getLoggedID(),answerID)};
 		)
 		pre (
 			loggedUser <> nil
@@ -341,7 +341,7 @@ class StackOverflow
 			and not exists1 vote in set votes & (
 				isofclass(Vote, vote)
 				and vote.userID = (inverse (users :> {loggedUser}))(loggedUser)
-				and vote.questionID = answerID
+				and vote.answerID = answerID
 			)
 		)
 		post(

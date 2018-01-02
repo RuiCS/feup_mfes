@@ -156,6 +156,34 @@ operations
 		s.logout();	
 	);
 	
+	private deleteQuestion: () ==> ()
+	deleteQuestion() == (
+		s.login("user", "pass");
+		assertTrue(card dom s.questions = 1);
+		s.deleteQuestion(0);
+		s.logout();
+	);
+	
+	private deleteAnswer: () ==> ()
+	deleteAnswer() == (
+		s.login("user2", "pass2");
+		s.answerQuestion(0, "random answer");
+		assertTrue(card dom s.answers = 2);
+		s.deleteAnswer(1);
+		assertTrue(s.answers(1).deleted = true);
+		s.logout();
+	);
+	
+	private deleteComment: () ==> ()
+	deleteComment() == (
+		s.login("user2", "pass2");
+		s.comment(0, 0, "random text");
+		assertTrue(card dom s.comments = 2);
+		s.deleteComment(1);
+		assertTrue(s.comments(1).deleted = true);
+		s.logout();
+	);
+	
 	
 	private printUsers : () ==> ()
 	printUsers() == (
@@ -182,8 +210,6 @@ operations
 		
 		s.testAnswerQuestion();
 		
-		s.printQuestions();
-
 		s.testUpvoteAnswer();
 		s.testDownvoteAnswer();
 		
@@ -195,6 +221,13 @@ operations
 		
 		s.printUsers();
 		s.printQuestions();
+		
+		s.deleteComment();
+		s.deleteAnswer();
+		s.deleteQuestion();
+		
+		s.printQuestions();
+		
 	);
 		  
 end StackOverflowTest
