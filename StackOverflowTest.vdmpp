@@ -220,37 +220,37 @@ operations
 	
 	public static main: () ==> ()
 	main() == (
-		dcl s : StackOverflowTest := new StackOverflowTest();
-		s.testCreateUser();
+		dcl stackTest : StackOverflowTest := new StackOverflowTest();
+		stackTest.testCreateUser();
 --		new StackOverflowTest().testCreateSameUser();
-		s.testLoginUser();
-		s.testLogoutUser();
-		s.testLoggedID();
-		s.testAskQuestion();
+		stackTest.testLoginUser();
+		stackTest.testLogoutUser();
+		stackTest.testLoggedID();
+		stackTest.testAskQuestion();
 		
-		s.testUpvoteQuestion();
-		s.testDownvoteQuestion();
+		stackTest.testUpvoteQuestion();
+		stackTest.testDownvoteQuestion();
 		
-		s.testAnswerQuestion();
+		stackTest.testAnswerQuestion();
 		
-		s.testUpvoteAnswer();
-		s.testDownvoteAnswer();
+		stackTest.testUpvoteAnswer();
+		stackTest.testDownvoteAnswer();
 		
-		s.testEditQuestion();
-		s.comment();
-		s.editComment();
+		stackTest.testEditQuestion();
+		stackTest.comment();
+		stackTest.editComment();
 		
-		s.testEditAnswer();
-		s.testAcceptAnswer();
+		stackTest.testEditAnswer();
+		stackTest.testAcceptAnswer();
 		
-		s.printUsers();
-		s.printQuestions();
+		stackTest.printUsers();
+		stackTest.printQuestions();
 		
-		s.deleteComment();
-		s.deleteAnswer();
-		s.deleteQuestion();
+		stackTest.deleteComment();
+		stackTest.deleteAnswer();
+		stackTest.deleteQuestion();
 		
-		s.printQuestions();
+		stackTest.printQuestions();
 		
 	);
 		  

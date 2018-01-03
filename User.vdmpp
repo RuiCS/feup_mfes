@@ -5,7 +5,6 @@ class User
 		-- TODO Define values here
 		instance variables
 				public username : String;
-				public email : String;
 				public password : String;
 				public questions : set of nat := {};
 		operations
