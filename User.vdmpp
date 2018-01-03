@@ -8,7 +8,9 @@ class User
 				public password : String;
 				public questions : set of nat := {};
 		operations
-				-- Create User
+				/**
+				*	Default Constructor
+				*/
 				public User : String*String ==> User
 				User (name, pass) == (
 						username := name;
@@ -16,19 +18,22 @@ class User
 						return self;
 				);
 				
-				-- Add question
+				/**
+				*	Add a queston this user's posted
+				*/
 				public addQuestion : nat ==> ()
 				addQuestion (questionID) == (
 					questions := questions union {questionID};
 				);
 				
+				/**
+				*	Check if two users are equal (same username and password)
+				*/
 				public equals : User ==> bool
 				equals(user) == (
 					return user.username = username and user.password = password;
 				)
 				
 		functions
-		-- TODO Define functiones here
 		traces
-		-- TODO Define Combinatorial Test Traces here
 end User

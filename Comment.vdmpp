@@ -18,7 +18,11 @@ class Comment
 	  public deleted : bool := false;
 			
 	operations
-		-- Create Comment
+	
+		/**
+		*	Default Constructor
+		*	@pre contents not null
+		*/
 		public Comment : nat*nat*int*String ==> Comment
 		Comment(ID, questionId, answerId, comment) == (
 				userID := ID;
@@ -30,13 +34,17 @@ class Comment
 		)
 		pre len comment > 0;		
 		
-		-- Delete comment
+		/**
+		*	Delete this comment
+		*/
 		public delete : () ==> ()
 		delete() == (
 			deleted := true;
 		);
 		
-		-- Edit comment
+		/**
+		*	Edit contents of this comment
+		*/
 		public edit : String ==> ()
 		edit (content) == (
 			text := content;
