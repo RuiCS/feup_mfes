@@ -22,6 +22,8 @@ class Question
 			  public userID : nat := 0;
 			  -- This question's answers (IDs)
 			  public answers : set of nat := {};
+			  -- This question's comments (IDs)
+			  public comments : set of nat := {};
 			  
 		operations
 				-- Create Question (with empty body and category)
@@ -70,7 +72,6 @@ class Question
 				close () == (
 					closed := true;
 				);
-				-- Maybe add a precondition: question is closed only if an answer is accepted!
 				
 				-- Delete Question
 				public delete : () ==> ()
@@ -84,6 +85,9 @@ class Question
 					answers := answers union {answerID};
 				);
 				
-				-- Accept Answer ?
+				public comment : nat ==> ()
+				comment(commentID) == (
+					comments := comments union {commentID};
+				);
 				
 end Question

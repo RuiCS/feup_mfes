@@ -8,20 +8,18 @@ class Comment
 	  -- The date at which the answer was posted
 	  public date : String := "";
 	  
-	  -- The answer's ID
-	  private static id : nat := 0;
 	  -- The ID of the user who posted this comment
-	  public userID : nat := 0;
+	  public userID : int := -1;
 	  -- The ID of the question this comment belongs to
-	  private questionID : nat := 0;
+	  private questionID : int := -1;
 	  -- The ID of the answer this comment belongs to
-	  public answerID : nat := 0;
+	  public answerID : int := -1;
 	  -- Whether this comment has been deleted or not
 	  public deleted : bool := false;
 			
 	operations
 		-- Create Comment
-		public Comment : nat*nat*nat*String ==> Comment
+		public Comment : nat*nat*int*String ==> Comment
 		Comment(ID, questionId, answerId, comment) == (
 				userID := ID;
 				questionID := questionId;

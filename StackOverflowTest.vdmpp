@@ -163,7 +163,7 @@ operations
 		s.login("user3", "pass3");
 		assertTrue(card dom s.comments = 0);
 		
-		s.comment(0, 0, "No, you're wrong.");
+		s.commentAnswer(0, 0, "No, you're wrong.");
 		assertTrue(card dom s.comments = 1);
 		s.logout();	
 	);
@@ -200,7 +200,7 @@ operations
 	private deleteComment: () ==> ()
 	deleteComment() == (
 		s.login("user2", "pass2");
-		s.comment(0, 0, "random text");
+		s.commentAnswer(0, 0, "random text");
 		assertTrue(card dom s.comments = 2);
 		s.deleteComment(1);
 		assertTrue(s.comments(1).deleted = true);

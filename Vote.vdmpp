@@ -3,6 +3,7 @@ class Vote
 		public userID : int := -1;
 		public questionID : int := -1;
 		public answerID : int := -1;
+		public commentID : int := -1;
 	operations
 	-- TODO Define operations here
 	functions

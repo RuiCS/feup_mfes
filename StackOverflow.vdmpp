@@ -240,8 +240,8 @@ class StackOverflow
 		);
 		
 		-- User Comments Answer
-		public comment : nat*nat*String ==> ()
-		comment(questionID, answerID, content) == (
+		public commentAnswer : nat*nat*String ==> ()
+		commentAnswer(questionID, answerID, content) == (
 			comments := comments munion { card dom comments |-> new Comment(getLoggedID(), questionID, answerID, content) };
 			answers(answerID).comment((card dom comments) - 1);
 		)
@@ -252,10 +252,28 @@ class StackOverflow
 			and answerID < card dom answers
 			and exists1 question in set dom questions & question= questionID
 			and exists1 answer in set dom answers & answer = answerID
+			and not (questions(questionID).closed or questions(questionID).deleted)
 		)
 		post (
 			card dom comments = card dom comments~ + 1
 			--and card answers(answerID).comments = card answers(answerID).comments~ + 1
+		);
+		
+		-- User Comments Question
+		public commentQuestion : nat*String ==> ()
+		commentQuestion(questionID, content) == (
+			comments := comments munion { card dom comments |-> new Comment(getLoggedID(), questionID, -1, content) };
+			questions(questionID).comment((card dom comments) - 1);
+		)
+		pre (
+			content <> ""
+			and loggedUser <> nil
+			and questionID < card dom questions
+			and exists1 question in set dom questions & question = questionID
+			and not (questions(questionID).closed or questions(questionID).deleted)
+		)
+		post (
+			card dom comments = card dom comments~ + 1
 		);
 		
 		-- User Deletes Comment
@@ -374,11 +392,84 @@ class StackOverflow
 			card votes = card votes~ + 1
 		);
 		
+		-- User upvotes comment 
+		public upvoteComment : nat ==> ()
+		upvoteComment(commentID) == (
+			votes := votes union {new Upvote(2,getLoggedID(),commentID)};
+		)
+		pre (
+			loggedUser <> nil
+			and not comments(commentID).userID = (inverse (users :> {loggedUser}))(loggedUser)
+			and exists1 comment in set dom comments & comment = commentID
+			and not comments(commentID).deleted
+			and not exists1 vote in set votes & (
+				isofclass(Vote, vote)
+				and vote.userID = (inverse (users :> {loggedUser}))(loggedUser)
+				and vote.commentID = commentID
+			)
+		)
+		post(
+			card votes = card votes~ + 1
+		);
+		
+		-- User downvotes comment
+		public downvoteComment : nat ==> ()
+		downvoteComment(commentID) == (
+			votes := votes union {new Downvote(2,getLoggedID(),commentID)};
+		)
+		pre (
+			loggedUser <> nil
+			and not comments(commentID).userID = (inverse (users :> {loggedUser}))(loggedUser)
+			and exists1 comment in set dom comments & comment = commentID
+			and not comments(commentID).deleted
+			and not exists1 vote in set votes & (
+				isofclass(Vote, vote)
+				and vote.userID = (inverse (users :> {loggedUser}))(loggedUser)
+				and vote.commentID = commentID
+			)
+		)
+		post(
+			card votes = card votes~ + 1
+		);
+		
+		
+		-- Get Votes for a given post
+		public getVotes : nat*nat*nat ==> nat
+		getVotes(updown, type, postID) == (
+			dcl a : nat := 0;
+			cases updown :
+				-- upvote
+				0 ->	cases type:
+								-- question
+								0 ->	(for all vote in set votes do (if (isofclass(Upvote, vote) and vote.questionID = postID) then a := a + 1 )),
+								-- answer
+								1 -> 	(for all vote in set votes do (if (isofclass(Upvote, vote) and vote.answerID = postID) then a := a + 1 )),
+								-- comment
+								2 ->	(for all vote in set votes do (if (isofclass(Upvote, vote) and vote.commentID = postID) then a := a + 1 ))
+							end,
+				-- downvote
+				1 -> cases type:
+								-- question
+								0 ->	(for all vote in set votes do (if (isofclass(Downvote, vote) and vote.questionID = postID) then a := a + 1 )),
+								-- answer
+								1 -> 	(for all vote in set votes do (if (isofclass(Downvote, vote) and vote.answerID = postID) then a := a + 1 )),
+								-- comment
+								2 ->	(for all vote in set votes do (if (isofclass(Downvote, vote) and vote.commentID = postID) then a := a + 1 ))
+							end
+			end;
+			return a;
+		)
+		pre (
+			(updown = 0 or updown = 1)
+			and type < 3
+		);
+		
+		
 		-- Print Users
 		public printUsers : () ==> ()
 		printUsers () == (
 			for all user in set rng users do (
-				Printer`Out("User - " ^ user.username ^ ", " ^ user.password ^ "\n" ^ "Questions: \n ");
+				Printer`Out("User - " ^ user.username ^ "\n" ^ "Questions: \n ");
 				for all qID in set user.questions do (
 					Printer`Out("\tQ"^Printer`natToString(qID) ^ ":\n\tCategory: " ^ questions(qID).category ^ "\n\tQuestion: " ^ questions(qID).text ^ "\n\tDesc: " ^ questions(qID).description ^"\n");
 				) 
@@ -394,23 +485,41 @@ class StackOverflow
 										"\nQuestion: " ^questions(qID).text ^ 
 										"\nDescription: " ^ questions(qID).description ^ 
 										"\nDate: " ^ questions(qID).date ^ 
-										"\nVotes: X Upvotes & Y Downvotes\n" ^
-										"\nAnswers:\n" );
+										"\nVotes: " ^ Printer`natToString(getVotes(0, 0, qID)) ^ " Upvotes & " ^ Printer`natToString(getVotes(1,0,qID)) ^ " Downvotes\n" ^
+										"\nComments:\n" );
+										
+				for all cID in set questions(qID).comments do (
+						Printer`Out("\tC"^Printer`natToString(cID) ^
+											"\n\tcomment by " ^ users(comments(cID).userID).username ^
+											"\n\tcomment: " ^ comments(cID).text ^
+											"\n\tdate: " ^ comments(cID).date ^
+											"\nVotes: " ^ Printer`natToString(getVotes(0, 2, cID)) ^ " Upvotes & " ^ Printer`natToString(getVotes(1,2,cID)) ^ " Downvotes\n" ^
+											"\n");
+				);
+				
+				if (card questions(qID).answers = 0) then Printer`Out("\tNo answers yet!\n")
+				else Printer`Out("\nAnswers:\n");
+				
 				for all aID in set questions(qID).answers do (
 					Printer`Out("\tA"^Printer`natToString(aID) ^
 											"\n\tanswered by " ^ users(answers(aID).userID).username ^
 											"\n\tanswer: " ^ answers(aID).text ^
 											"\n\tdate: " ^ answers(aID).date ^
-											"\n\tVotes: X Upvotes & Y Downvotes\n" ^
+											"\nVotes: " ^ Printer`natToString(getVotes(0, 1, aID)) ^ " Upvotes & " ^ Printer`natToString(getVotes(1,1,aID)) ^ " Downvotes\n" ^
 											"\n\tComments:\n" );
+					
+					if (card answers(aID).comments = 0) then Printer`Out("\t\t No comments yet!\n");			
+											
 					for all cID in set answers(aID).comments do (
-						Printer`Out("\tA"^Printer`natToString(cID) ^
+						Printer`Out("\tC"^Printer`natToString(cID) ^
 											"\n\t\tcomment by " ^ users(comments(cID).userID).username ^
 											"\n\t\tcomment: " ^ comments(cID).text ^
 											"\n\t\tdate: " ^ comments(cID).date ^
-											"\n\t\tVotes: X Upvotes & Y Downvotes\n");
-					)
+											"\nVotes: " ^ Printer`natToString(getVotes(0, 2, cID)) ^ " Upvotes & " ^ Printer`natToString(getVotes(1,2,cID)) ^ " Downvotes\n" ^
+											"\n");
+					);
 				)
+				
 			)
 		)
 		

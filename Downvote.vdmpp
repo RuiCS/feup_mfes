@@ -5,7 +5,8 @@ class Downvote is subclass of Vote
 			userID := uID;
 			cases type:
 				0 -> questionID := postID,
-				1 -> answerID := postID
+				1 -> answerID := postID,
+				2 -> commentID := postID
 			end;
 			return self;
 		);
