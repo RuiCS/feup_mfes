@@ -246,7 +246,7 @@ operations
 		stackTest.printUsers();
 		stackTest.printQuestions();
 		
-		stackTest.deleteComment();
+--		stackTest.deleteComment();
 		stackTest.deleteAnswer();
 		stackTest.deleteQuestion();
 		

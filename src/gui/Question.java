@@ -12,6 +12,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JLabel;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 
 public class Question extends JPanel {
@@ -76,6 +77,11 @@ public class Question extends JPanel {
 	    							.addComponent(listComments, GroupLayout.PREFERRED_SIZE, 378, GroupLayout.PREFERRED_SIZE)))))
 	    			.addGap(73))
 	    );
+	    btnNewButton.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent arg0) {
+	    		
+	    	}
+	    });
 	    groupLayout.setVerticalGroup(
 	    	groupLayout.createParallelGroup(Alignment.LEADING)
 	    		.addGroup(groupLayout.createSequentialGroup()
@@ -102,6 +108,13 @@ public class Question extends JPanel {
 		questionText.setText(question.text);
 		textField.setText(question.description);
 		label.setText("made on " + question.date + " by " + Main.getUser(question.userID).username);
+		
+		ArrayList<StackOverflow.Comment> c = Main.getQuestionComments(Main.questionShown);
+		for(int i = 0; i < c.size(); i++) {
+			Comment com = new Comment();
+			com.setValues(c.get(i));
+			listComments.add(com);
+		}
 		if(Main.stack.loggedUser != null && Main.stack.getLoggedID() == question.userID) {
 			questionText.setEditable(true);
 			textField.setEditable(true);

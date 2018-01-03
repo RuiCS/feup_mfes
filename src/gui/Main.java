@@ -1,8 +1,14 @@
 package gui;
 
+import java.util.ArrayList;
+import java.util.Set;
+
 import org.overture.codegen.runtime.VDMMap;
+import org.overture.codegen.runtime.VDMSet;
 
 import StackOverflow.Question;
+import StackOverflow.Answer;
+import StackOverflow.Comment;
 import StackOverflow.StackOverflow;
 import StackOverflow.User;
 
@@ -35,6 +41,33 @@ public class Main {
     	}
     	
     	return q;
+    }
+    
+    public static ArrayList<Comment> getQuestionComments(Number questionID){
+    	ArrayList<Comment> c = new ArrayList<>();
+    	Number[] commentsIDs = (Number[])((Question)stack.questions.get(questionID)).comments.toArray();
+    	for(Number n : commentsIDs) {
+    		c.add((Comment)stack.comments.get(n));
+    	}
+    	return c;
+    }
+    
+    public static ArrayList<Comment> getAnswerComments(Number answerID){
+    	ArrayList<Comment> c = new ArrayList<>();
+    	Number[] commentsIDs = (Number[])((Answer)stack.answers.get(answerID)).comments.toArray();
+    	for(Number n : commentsIDs) {
+    		c.add((Comment)stack.comments.get(n));
+    	}
+    	return c;
+    }
+    
+    public static ArrayList<Answer> getQuestionAnswers(Number questionID){
+    	ArrayList<Answer> c = new ArrayList<>();
+    	Number[] commentsIDs = (Number[])((Answer)stack.questions.get(questionID)).comments.toArray();
+    	for(Number n : commentsIDs) {
+    		c.add((Answer)stack.answers.get(n));
+    	}
+    	return c;
     }
     
     public static User getUser(Number title) {
