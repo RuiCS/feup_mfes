@@ -1,13 +1,11 @@
 class Vote
 	instance variables
+		-- User who voted
 		public userID : int := -1;
+		-- Question voted on
 		public questionID : int := -1;
+		-- Answer voted on
 		public answerID : int := -1;
+		-- Comment voted on
 		public commentID : int := -1;
-	operations
-	-- TODO Define operations here
-	functions
-	-- TODO Define functiones here
-	traces
-	-- TODO Define Combinatorial Test Traces here
 end Vote

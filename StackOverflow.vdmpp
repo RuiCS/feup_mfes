@@ -5,25 +5,38 @@ class StackOverflow
 	types
 		public String = seq of char;
 	values
-	-- TODO Define values here
 	instance variables	
+		-- App's users
 		public users : map nat to User := {|->};
+		-- Posted questions
 		public questions : map nat to Question := {|->};
+		-- Posted answers
 		public answers : map nat to Answer := {|->}; 
+		-- Posted comments
 		public comments : map nat to Comment := {|->};
+		-- Votes on posts
 		public votes : set of Vote := {};
+		-- Started
 		public busy : bool := true;
+		-- GUI
     public static graphics : gui_Graphics:= new gui_Graphics(); 
+    -- Someone is logged in
 		public loggedUser : [User] := nil;
 	operations
 		
-		-- TODO
+		/**
+		*	Default Constructor
+		*/
 		public StackOverflow : () ==> StackOverflow
 		StackOverflow () == (
 				busy := true;
 		);
 		
-		-- Create New User
+		/**
+		*	Create New User
+		* @pre username and password not null
+		* @pre user not registered already
+		*/
 		public signup : String * String ==> ()
 		signup(username, password) == (
 			users := users munion { card dom users |-> new User(username, password) };
@@ -34,7 +47,14 @@ class StackOverflow
 			and forall user in set rng users & user.username <> username
 		);
 		
-		-- Login
+		/**
+		*	Login with credentials
+		* @pre username and password not null
+		* @pre user exists
+		* @pre no one logged in yet
+		* @post log-in happens
+		* @post logged user is a user
+		*/
 		public login : String * String ==> ()
 		login(username, password) == (
 			for all user in set rng users do(
@@ -54,7 +74,11 @@ class StackOverflow
 			and loggedUser in set rng users
 		);
 		
-		-- Logout
+		/**
+		*	Log out of the app
+		* @pre someone is logged in
+		* @post no one is logged in
+		*/
 		public logout : () ==> ()
 		logout() == (
 			loggedUser := nil;
@@ -62,7 +86,12 @@ class StackOverflow
 		pre loggedUser <> nil
 		post loggedUser = nil;
 		
-		-- Get the logged user's ID
+		/**
+		* Get the logged user's ID
+		* @pre someone is logged in
+		* @pre logged user is a user
+		* @post nothing happens to logged user
+		*/
 		public getLoggedID : () ==> nat
 		getLoggedID() == (
 			return (inverse (users :> {loggedUser}))(loggedUser);
@@ -74,10 +103,13 @@ class StackOverflow
 		post (
 			card dom (users :> {loggedUser}) = 1
 		);
-		
-		-- Delete User
 				
-		-- User Asks Question
+		/**
+		*	User asks question
+		* @pre contents not null
+		* @pre must be logged in
+		* @post question is posted
+		*/
 		public askQuestion : String*String*String ==> ()
 		askQuestion(question, description, category) == (
 			-- update questions (create question)
@@ -95,6 +127,12 @@ class StackOverflow
 			--card loggedUser.questions = card loggedUser.questions~ + 1;
 		);
 		
+		/**
+		*	User asks question
+		* @pre contents not null
+		* @pre user is logged in
+		* @post @question is posted
+		*/
 		public askQuestion : String*String ==> ()
 		askQuestion(question, description) == (
 			-- update questions (create question)
@@ -112,6 +150,13 @@ class StackOverflow
 			--card loggedUser.questions = card loggedUser.questions~ + 1;
 		);
 		
+		
+		/**
+		*	User asks question
+		* @pre contents not null
+		* @pre user is logged in
+		* @post @question is posted
+		*/
 		public askQuestion : String ==> ()
 		askQuestion(question) == (
 			-- update questions (create question)
@@ -129,7 +174,15 @@ class StackOverflow
 			--card loggedUser.questions = card loggedUser.questions~ + 1;
 		);
 		
-		-- User Deletes (Own) Question, + related answers and comments
+		
+		/**
+		*	User Deletes (Own) Question, + related answers and comments
+		* @pre user is logged in
+		* @pre question exists
+		* @pre question was posted by logged-in user
+		* @post question is no more
+		* @post question is deleted (toggle)
+		*/
 		public deleteQuestion : nat ==> ()
 		deleteQuestion(questionID) == (
 			questions(questionID).delete();
@@ -155,7 +208,14 @@ class StackOverflow
 			-- card loggedUser.questions = card loggedUser.questions~ -1;
 		);
 		
-		-- User Edits (Own) Question
+		/**
+		*	User edits (own) question
+		* @pre user is logged in
+		* @pre question exists
+		* @pre question not closed
+		* @pre question cntents not null
+		* @pre question posted by logged user
+		*/
 		public editQuestion : nat*String*String ==> ()
 		editQuestion(questionID, question, desc) == (
 			questions(questionID).edit(question, desc);
@@ -169,7 +229,13 @@ class StackOverflow
 			and questions(questionID).closed = false
 		);
 		
-		-- User Answers Question
+		/**
+		*	User Answers Question
+		* @pre user is logged in
+		* @pre question exists
+		* @pre contents not null
+		* @post answer is posted
+		*/
 		public answerQuestion : nat*String ==> ()
 		answerQuestion(questionID, answer) == (
 			answers := answers munion {card dom answers |-> new Answer(getLoggedID(), questionID, answer) };
@@ -186,7 +252,12 @@ class StackOverflow
 			-- and questions(questionID).answers = questions(questionID).answers~ + 1
 		);
 				
-		-- User Deletes Answer
+		/**
+		*	User Deletes (Own) Answer and related comments
+		* @pre user is logged in
+		* @pre answer exists
+		* @post answer is deleted
+		*/
 		public deleteAnswer : nat ==> ()
 		deleteAnswer(answerID) == (
 			if (answers(answerID).userID = getLoggedID()) then answers(answerID).delete();
@@ -203,7 +274,13 @@ class StackOverflow
 			and answers(answerID).deleted = true
 		);
 		
-		-- User Edits Answer
+		/**
+		*	User Edits Answer
+		* @pre user is logged in
+		* @pre answer exists
+		* @pre contents not null
+		* @post answer still posted
+		*/
 		public editAnswer : nat*String ==> ()
 		editAnswer(answerID, content) == (
 			if (answers(answerID).userID = getLoggedID()) then answers(answerID).edit(content);
@@ -218,7 +295,16 @@ class StackOverflow
 			card dom answers = card dom answers~
 		);
 		
-		-- User Accepts Answer
+		/**
+		*	User Accepts answer
+		* @pre user is logged in
+		* @pre answer exists
+		* @pre question exists
+		* @pre question not closed
+		* @pre no answer accepted
+		* @post question is closed
+		* @post answer is accepted
+		*/
 		public acceptAnswer : nat*nat ==> ()
 		acceptAnswer(questionID, answerID) == (
 			answers(answerID).accept();
@@ -239,7 +325,13 @@ class StackOverflow
 			and answers(answerID).accepted
 		);
 		
-		-- User Comments Answer
+		/**
+		*	User Comments an Answer
+		* @pre user is logged in
+		* @pre answer exists
+		* @pre question not closed or deleted
+		* @post comment posted
+		*/
 		public commentAnswer : nat*nat*String ==> ()
 		commentAnswer(questionID, answerID, content) == (
 			comments := comments munion { card dom comments |-> new Comment(getLoggedID(), questionID, answerID, content) };
@@ -259,7 +351,14 @@ class StackOverflow
 			--and card answers(answerID).comments = card answers(answerID).comments~ + 1
 		);
 		
-		-- User Comments Question
+		/**
+		*	User Comments a Question
+		* @pre user is logged in
+		* @pre question exists
+		* @pre answer exists
+		* @pre question not closed or deleted
+		* @post comment posted
+		*/
 		public commentQuestion : nat*String ==> ()
 		commentQuestion(questionID, content) == (
 			comments := comments munion { card dom comments |-> new Comment(getLoggedID(), questionID, -1, content) };
@@ -276,7 +375,12 @@ class StackOverflow
 			card dom comments = card dom comments~ + 1
 		);
 		
-		-- User Deletes Comment
+		/**
+		*	User Deletes a comment
+		* @pre user is logged in
+		* @pre comment exists
+		* @post comment deleted
+		*/
 		public deleteComment : nat ==> ()
 		deleteComment(commentID) == (
 			if (comments(commentID).userID = getLoggedID()) then (
@@ -293,9 +397,13 @@ class StackOverflow
 			comments(commentID).deleted = true
 		);
 		
-		-- User Edits Comment
-		-- User Votes on Question
-		-- User Votes on Answer		
+		/**
+		*	User Edits comment
+		* @pre user is logged in
+		* @pre comment exists
+		* @pre contents not null
+		* @post comment posted
+		*/		
 		public editComment : nat*String ==> ()
 		editComment(commentID, content) == (
 			if (comments(commentID).userID = getLoggedID()) then (
@@ -312,7 +420,14 @@ class StackOverflow
 			card dom comments = card dom comments~ 
 		);
 		
-		-- User upvotes Question
+		/**
+		*	User upvotes question
+		* @pre user is logged
+		* @pre question not his own
+		* @pre question not deleted
+		* @pre not voted already by user
+		* @post vote is posted
+		*/
 		public upvoteQuestion : nat ==> ()
 		upvoteQuestion(questionID) == (
 			votes := votes union {new Upvote(0,getLoggedID(),questionID)};
@@ -332,7 +447,14 @@ class StackOverflow
 			card votes = card votes~ + 1
 		);
 		
-		-- User downvotes Question
+		/**
+		*	User downvotes question
+		* @pre user is logged
+		* @pre question not his own
+		* @pre question not deleted
+		* @pre not voted already by user
+		* @post vote is posted
+		*/
 		public downvoteQuestion : nat ==> ()
 		downvoteQuestion(questionID) == (
 			votes := votes union {new Downvote(0,getLoggedID(),questionID)};
@@ -352,7 +474,14 @@ class StackOverflow
 			card votes = card votes~ + 1
 		);
 	
-		-- User upvotes answer
+		/**
+		*	User upvotes answer
+		* @pre user is logged
+		* @pre answer not his own
+		* @pre answer not deleted
+		* @pre not voted already by user
+		* @post vote is posted
+		*/
 		public upvoteAnswer : nat ==> ()
 		upvoteAnswer(answerID) == (
 			votes := votes union {new Upvote(1,getLoggedID(),answerID)};
@@ -372,7 +501,14 @@ class StackOverflow
 			card votes = card votes~ + 1
 		);
 		
-		-- User downvotes answer
+		/**
+		*	User downvotes answer
+		* @pre user is logged
+		* @pre answer not his own
+		* @pre answer not deleted
+		* @pre not voted already by user
+		* @post vote is posted
+		*/
 		public downvoteAnswer : nat ==> ()
 		downvoteAnswer(answerID) == (
 			votes := votes union {new Downvote(1,getLoggedID(),answerID)};
@@ -392,7 +528,14 @@ class StackOverflow
 			card votes = card votes~ + 1
 		);
 		
-		-- User upvotes comment 
+		/**
+		*	User upvotes comment
+		* @pre user is logged
+		* @pre comment not his own
+		* @pre comment not deleted
+		* @pre not voted already by user
+		* @post vote is posted
+		*/
 		public upvoteComment : nat ==> ()
 		upvoteComment(commentID) == (
 			votes := votes union {new Upvote(2,getLoggedID(),commentID)};
@@ -412,7 +555,14 @@ class StackOverflow
 			card votes = card votes~ + 1
 		);
 		
-		-- User downvotes comment
+	  /**
+		*	User downvotes answer
+		* @pre user is logged
+		* @pre comment not his own
+		* @pre comment not deleted
+		* @pre not voted already by user
+		* @post vote is posted
+		*/
 		public downvoteComment : nat ==> ()
 		downvoteComment(commentID) == (
 			votes := votes union {new Downvote(2,getLoggedID(),commentID)};
@@ -432,8 +582,10 @@ class StackOverflow
 			card votes = card votes~ + 1
 		);
 		
-		
-		-- Get Votes for a given post
+		/**
+		*	Get votes on a given post
+		* @pre inputs in bounds
+		*/
 		public getVotes : nat*nat*nat ==> nat
 		getVotes(updown, type, postID) == (
 			dcl a : nat := 0;
@@ -465,7 +617,9 @@ class StackOverflow
 		);
 		
 		
-		-- Print Users
+		/**
+		*	Print to the console the users
+		*/
 		public printUsers : () ==> ()
 		printUsers () == (
 			for all user in set rng users do (
@@ -476,7 +630,9 @@ class StackOverflow
 			)
 		);
 		
-		-- Print Questions
+		/**
+		* Print Questions, Answers and Comments to the console
+		*/
 		public printQuestions : () ==> ()
 		printQuestions () == (
 			for all qID in set dom questions do (
@@ -524,7 +680,5 @@ class StackOverflow
 		)
 		
 	functions
-	-- TODO Define functiones here
 	traces
-	-- TODO Define Combinatorial Test Traces here
 end StackOverflow

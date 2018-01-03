@@ -26,7 +26,11 @@ class Question
 			  public comments : set of nat := {};
 			  
 		operations
-				-- Create Question (with empty body and category)
+				/**
+				*	Constructor - 
+				* Create Question (with empty body and category)
+				*	@pre contents not null
+				*/
 				public Question : nat*String ==> Question
 				Question(ID, question) == (
 						userID := ID;
@@ -36,7 +40,11 @@ class Question
 				)
 				pre len question > 0;
 				
-				-- Create Question (with nonempty body and empty category)
+				/**
+				*	Constructor - 
+				* Create Question (with nonempty body and empty category)
+				*	@pre contents not null
+				*/
 				public Question : nat*String*String ==> Question
 				Question(ID, question, context) == (
 					userID := ID;
@@ -47,7 +55,11 @@ class Question
 				)
 				pre len question > 0;
 				
-				-- Create Question (with nonempty body and category)
+				/**
+				*	Constructor - 
+				* Create Question (with nonempty body and category)
+				*	@pre contents not null
+				*/
 				public Question: nat*String*String*String ==> Question
 				Question(ID, question, context, cat) == (
 					userID := ID;
@@ -59,7 +71,10 @@ class Question
 				)
 				pre len question > 0;
 				
-				-- Edit Question
+				/**
+				*	Edit this Question
+				* @pre contents not null
+				*/
 				public edit : String*String ==> ()
 				edit(question, desc) == (
 					text := question;
@@ -67,24 +82,33 @@ class Question
 				)
 				pre len question > 0;
 				
-				-- Close Question
+				/**
+				*	Close this question
+				*/
 				public close : () ==> ()
 				close () == (
 					closed := true;
 				);
 				
-				-- Delete Question
+				/**
+				*	Delete this question
+				*/
 				public delete : () ==> ()
 				delete () == (
 					deleted := true;
 				);
 				
-				-- Answer Question
+				/**
+				*	Answer this question
+				*/
 				public answer : nat ==> ()
 				answer (answerID) == (
 					answers := answers union {answerID};
 				);
 				
+				/**
+				*	Comment this question
+				*/
 				public comment : nat ==> ()
 				comment(commentID) == (
 					comments := comments union {commentID};

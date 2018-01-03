@@ -21,7 +21,11 @@ class Answer
 	  public comments : set of nat := {};
 
 	operations
-		-- Create Answer
+		
+		/**
+		*	Default Constructor
+		*	@pre contents not null
+		*/	
 		public Answer : nat*nat*String ==> Answer
 		Answer(ID, questionId, answer) == (
 				userID := ID;
@@ -32,25 +36,33 @@ class Answer
 		)
 		pre len answer > 0;
 
-		-- Accept Answer
+		/**
+		*	Accept this answer
+		*/
 		public accept : () ==> ()
 		accept() == (
 			accepted := true;
 		);
 		
-		-- Delete Answer
+		/**
+		*	Delete this answer
+		*/
 		public delete : () ==> ()
 		delete() == (
 			deleted := true;
 		);
 		
-		-- Edit Answer
+		/**
+		*	Edit this answer
+		*/
 		public edit : String ==> ()
 		edit(content) == (
 			text := content;
 		) pre len content > 0;
 		
-		-- Add Comment
+		/**
+		*	Associate a comment ID to this answer
+		*/
 		public comment : nat ==> ()
 		comment(commentID) == (
 			comments := comments union {commentID};

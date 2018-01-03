@@ -1,28 +1,27 @@
 class World
-
-instance variables
-public static graphics : gui_Graphics:= new gui_Graphics();
-
-public static stack : [StackOverflow] := new StackOverflow();
-
-operations
-
-	public World: () ==> World
-	World() ==
-	(
-	 	Printer`Out("World created: ");
-		Printer`Out("------------------------------------------\n");
-	);
-
-	public static Run: () ==> ()
-	Run() == 
-	(
-		graphics.init();
-		
-	  Printer`Out("End of this world");
-	);
-
-
-
-
+	instance variables
+	public static graphics : gui_Graphics:= new gui_Graphics();
+	public static stack : [StackOverflow] := new StackOverflow();
+	operations
+	
+		/**
+		*	Start world (print)
+		*/
+		public World: () ==> World
+		World() ==
+		(
+		 	Printer`Out("World created: ");
+			Printer`Out("------------------------------------------\n");
+		);
+	
+		/**
+		*	Run GUI
+		*/ 
+		public static Run: () ==> ()
+		Run() == 
+		(
+			graphics.init();
+			
+		  Printer`Out("End of this world");
+		);
 end World

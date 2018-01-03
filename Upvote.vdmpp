@@ -1,5 +1,8 @@
 class Upvote is subclass of Vote
 	operations
+		/**
+		*	Default Constructor
+		*/
 		public Upvote : nat*nat*nat ==> Upvote
 		Upvote(type, uID, postID) == (
 			userID := uID;
@@ -11,7 +14,5 @@ class Upvote is subclass of Vote
 			return self;
 		);
 	functions
-	-- TODO Define functiones here
 	traces
-	-- TODO Define Combinatorial Test Traces here
 end Upvote
