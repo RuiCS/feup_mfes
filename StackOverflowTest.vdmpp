@@ -17,6 +17,7 @@ operations
 		s.signup("user", "pass");
 		s.signup("user2", "pass2");
 		s.signup("user3", "pass3");
+		s.signup("user4", "pass4");
 		
 		assertTrue(user.username = "user");
 		assertTrue(user.password = "pass");
@@ -50,9 +51,9 @@ operations
 	private testLoggedID : () ==> ()
 	testLoggedID() == (
 		assertTrue(s.loggedUser = nil);
-		s.signup("user", "pass");
 		s.login("user", "pass");
 		assertTrue(s.getLoggedID() = 0);
+		s.logout();
 	);
 	
 	private testAskQuestion : () ==> ()
@@ -60,8 +61,13 @@ operations
 		s.login("user", "pass");
 		assertTrue(card dom s.questions = 0);
 		s.askQuestion("what is the square root of PI?", "example description", "math");
-		s.logout();
 		assertTrue(card dom s.questions = 1);
+		s.askQuestion("What is the distance from the earth to the moon?", "I forgot about it");
+		assertTrue(card dom s.questions = 2);
+		s.askQuestion("Random question");
+		assertTrue(card dom s.questions = 3);
+		s.logout();
+		
 	);
 	
 	private testAnswerQuestion : () ==> ()
@@ -70,11 +76,11 @@ operations
 		assertTrue(card dom s.answers = 0);
 		assertTrue(s.getLoggedID() = 1);
 		s.answerQuestion(0, "The answer is 1.73454256324");
-		s.logout();
-		assertTrue(card dom s.questions = 1);
 		assertTrue(card dom s.answers = 1);
 		assertTrue(s.answers(0).text = "The answer is 1.73454256324");
 		assertTrue(s.answers(0).userID = 1);
+		s.logout();
+		
 	);
 	
 	private testUpvoteQuestion : () ==> ()
@@ -84,34 +90,40 @@ operations
 		s.upvoteQuestion(0);
 		assertTrue(card s.votes = 1);
 		s.logout();
+		
+		s.login("user4", "pass4");
+		assertTrue(card s.votes = 1);
+		s.upvoteQuestion(0);
+		assertTrue(card s.votes = 2);
+		s.logout();		
 	);
 	
 	private testDownvoteQuestion : () ==> ()
 	testDownvoteQuestion() == (
 		s.login("user3", "pass3");
-		assertTrue(card s.votes = 1);
+		assertTrue(card s.votes = 2);
 		s.downvoteQuestion(0);
-		assertTrue(card s.votes = 2);		
+		assertTrue(card s.votes = 3);		
 		s.logout();
 	);
 	
 		private testUpvoteAnswer : () ==> ()
 	testUpvoteAnswer() == (
 		s.login("user", "pass");
-		assertTrue(card s.votes = 2);
-		s.upvoteAnswer(0);
 		assertTrue(card s.votes = 3);
+		s.upvoteAnswer(0);
+		assertTrue(card s.votes = 4);
 		s.logout();
 	);
 	
 	private testDownvoteAnswer : () ==> ()
 	testDownvoteAnswer() == (
 		s.login("user3", "pass3");
-		assertTrue(card s.votes = 3);
+		assertTrue(card s.votes = 4);
 		assertTrue(s.getLoggedID() = 2);
 		assertTrue(s.answers(0).userID <> 2);
 		s.downvoteAnswer(0);
-		assertTrue(card s.votes = 4);		
+		assertTrue(card s.votes = 5);		
 		s.logout();
 	);
 	
@@ -156,11 +168,22 @@ operations
 		s.logout();	
 	);
 	
+	private editComment: () ==> ()
+	editComment() == (
+		s.login("user3", "pass3");
+		assertTrue(s.comments(0).text = "No, you're wrong.");
+		
+		s.editComment(0, "No, you're wrong. You did the calculations wrong.");
+		assertTrue(s.comments(0).text = "No, you're wrong. You did the calculations wrong.");
+		s.logout();	
+	);
+	
 	private deleteQuestion: () ==> ()
 	deleteQuestion() == (
 		s.login("user", "pass");
-		assertTrue(card dom s.questions = 1);
+		assertTrue(card dom s.questions = 3);
 		s.deleteQuestion(0);
+		assertTrue(s.questions(0).deleted = true);
 		s.logout();
 	);
 	
@@ -202,7 +225,7 @@ operations
 --		new StackOverflowTest().testCreateSameUser();
 		s.testLoginUser();
 		s.testLogoutUser();
-		new StackOverflowTest().testLoggedID();
+		s.testLoggedID();
 		s.testAskQuestion();
 		
 		s.testUpvoteQuestion();
@@ -215,6 +238,7 @@ operations
 		
 		s.testEditQuestion();
 		s.comment();
+		s.editComment();
 		
 		s.testEditAnswer();
 		s.testAcceptAnswer();
