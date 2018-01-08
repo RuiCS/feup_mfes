@@ -11,7 +11,7 @@ class Comment
 	  -- The ID of the user who posted this comment
 	  public userID : int := -1;
 	  -- The ID of the question this comment belongs to
-	  private questionID : int := -1;
+	  public questionID : int := -1;
 	  -- The ID of the answer this comment belongs to
 	  public answerID : int := -1;
 	  -- Whether this comment has been deleted or not
